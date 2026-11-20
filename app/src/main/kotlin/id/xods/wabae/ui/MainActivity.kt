@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.PermMedia
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -26,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import id.xods.wabae.ui.screens.HomeScreen
+import id.xods.wabae.ui.screens.MediaScreen
 import id.xods.wabae.ui.screens.PrivacyScreen
 import id.xods.wabae.ui.theme.WaBaeTheme
 
@@ -38,7 +40,14 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             WaBaeTheme {
-                var selectedTab by remember { mutableIntStateOf(1) } // Default directly to Privacy Screen!
+                var selectedTab by remember { mutableIntStateOf(0) }
+
+                val tabTitle = when (selectedTab) {
+                    0 -> "Wa Bae"
+                    1 -> "Privasi Wa Bae"
+                    2 -> "Media Wa Bae"
+                    else -> "Wa Bae"
+                }
 
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
@@ -46,7 +55,7 @@ class MainActivity : ComponentActivity() {
                         TopAppBar(
                             title = {
                                 Text(
-                                    text = if (selectedTab == 0) "Wa Bae" else "Privasi Wa Bae",
+                                    text = tabTitle,
                                     fontWeight = FontWeight.Bold
                                 )
                             },
@@ -72,12 +81,19 @@ class MainActivity : ComponentActivity() {
                                 icon = { Icon(Icons.Rounded.Security, contentDescription = "Privasi") },
                                 label = { Text("Privasi") }
                             )
+                            NavigationBarItem(
+                                selected = selectedTab == 2,
+                                onClick = { selectedTab = 2 },
+                                icon = { Icon(Icons.Rounded.PermMedia, contentDescription = "Media") },
+                                label = { Text("Media") }
+                            )
                         }
                     }
                 ) { innerPadding ->
                     when (selectedTab) {
                         0 -> HomeScreen(modifier = Modifier.padding(innerPadding))
                         1 -> PrivacyScreen(modifier = Modifier.padding(innerPadding))
+                        2 -> MediaScreen(modifier = Modifier.padding(innerPadding))
                     }
                 }
             }

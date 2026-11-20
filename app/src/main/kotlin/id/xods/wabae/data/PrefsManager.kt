@@ -5,12 +5,11 @@ import android.os.Bundle
 import id.xods.wabae.data.PrefsProvider.Companion.CONTENT_URI
 import id.xods.wabae.data.PrefsProvider.Companion.KEY_VALUES
 import id.xods.wabae.data.PrefsProvider.Companion.METHOD_GET_ALL
-import id.xods.wabae.data.PrefsProvider.Companion.METHOD_SET_BOOLEAN
 import id.xods.wabae.data.PrefsProvider.Companion.PREFS_NAME
 
 object PrefsManager {
 
-    // Keys
+    // Keys - Privacy
     const val KEY_GHOST_MODE = "ghost_mode"
     const val KEY_FREEZE_LAST_SEEN = "freeze_last_seen"
     const val KEY_HIDE_ONLINE = "hide_online"
@@ -23,6 +22,15 @@ object PrefsManager {
     const val KEY_ANTI_VIEW_ONCE = "anti_view_once"
     const val KEY_ANTI_DELETE = "anti_delete"
     const val KEY_BLOCK_UNKNOWN_CALLS = "block_unknown_calls"
+
+    // Keys - Media
+    const val KEY_IMAGE_QUALITY = "image_quality"
+    const val KEY_VIDEO_QUALITY = "video_quality"
+    const val KEY_VIDEO_60FPS = "video_60fps"
+    const val KEY_DOWNLOAD_STATUS = "download_status"
+    const val KEY_DOWNLOAD_VIEW_ONCE = "download_view_once"
+    const val KEY_DISABLE_PROXIMITY = "disable_proximity"
+    const val KEY_MEDIA_PREVIEW = "media_preview"
 
     // UI Helper (Local app process)
     fun getLocalBoolean(context: Context, key: String, defValue: Boolean = false): Boolean {
