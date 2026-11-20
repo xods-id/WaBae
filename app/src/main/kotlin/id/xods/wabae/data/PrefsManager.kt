@@ -22,6 +22,7 @@ object PrefsManager {
     const val KEY_ANTI_VIEW_ONCE = "anti_view_once"
     const val KEY_ANTI_DELETE = "anti_delete"
     const val KEY_BLOCK_UNKNOWN_CALLS = "block_unknown_calls"
+    const val KEY_CALL_REJECT_TYPE = "call_reject_type" // no_internet, declined, busy
 
     // Keys - Media
     const val KEY_IMAGE_QUALITY = "image_quality"
@@ -45,11 +46,33 @@ object PrefsManager {
             .apply()
     }
 
+    fun getLocalString(context: Context, key: String, defValue: String = ""): String {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(key, defValue) ?: defValue
+    }
+
+    fun setLocalString(context: Context, key: String, value: String) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(key, value)
+            .apply()
+    }
+
     // Hook Helper (WhatsApp process - calls ContentProvider)
     private var cachedRemotePrefs: Bundle? = null
     private var lastFetchTime = 0L
 
     fun getRemoteBoolean(context: Context, key: String, defValue: Boolean = false): Boolean {
+        fetchRemotePrefs(context)
+        return cachedRemotePrefs?.getBoolean(key, defValue) ?: defValue
+    }
+
+    fun getRemoteString(context: Context, key: String, defValue: String = ""): String {
+        fetchRemotePrefs(context)
+        return cachedRemotePrefs?.getString(key, defValue) ?: defValue
+    }
+
+    private fun fetchRemotePrefs(context: Context) {
         val now = System.currentTimeMillis()
         if (cachedRemotePrefs == null || now - lastFetchTime > 3000) {
             try {
@@ -60,6 +83,5 @@ object PrefsManager {
                 // fallback
             }
         }
-        return cachedRemotePrefs?.getBoolean(key, defValue) ?: defValue
     }
 }
