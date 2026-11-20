@@ -59,7 +59,8 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons)
 
+    implementation(platform(libs.yukihook.bom))
     implementation(libs.yukihook.core)
-    ksp(libs.yukihook.ksp)
+    ksp(libs.yukihook.compiler)
     compileOnly(libs.xposed.api)
 }
