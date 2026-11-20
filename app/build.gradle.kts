@@ -63,6 +63,8 @@ dependencies {
     implementation(libs.kavaref.extension)
     implementation(libs.dexkit)
     implementation(libs.flatbuffers)
+    implementation(libs.androidx.room.runtime)
     compileOnly(libs.libxposed.api)
     ksp(libs.yukihook.compiler)
+    ksp(libs.androidx.room.compiler)
 }

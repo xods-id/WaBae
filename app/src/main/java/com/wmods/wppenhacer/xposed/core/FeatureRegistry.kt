@@ -2,7 +2,6 @@ package com.wmods.wppenhacer.xposed.core
 
 import com.wmods.wppenhacer.xposed.features.general.AntiRevoke
 import com.wmods.wppenhacer.xposed.features.general.CallType
-import com.wmods.wppenhacer.xposed.features.general.MinorFixes
 import com.wmods.wppenhacer.xposed.features.general.PropsHook
 import com.wmods.wppenhacer.xposed.features.media.DownloadProfile
 import com.wmods.wppenhacer.xposed.features.media.DownloadViewOnce
@@ -11,9 +10,9 @@ import com.wmods.wppenhacer.xposed.features.media.MediaQuality
 import com.wmods.wppenhacer.xposed.features.media.StatusDownload
 import com.wmods.wppenhacer.xposed.features.others.CopyStatus
 import com.wmods.wppenhacer.xposed.features.others.DebugFeature
+import com.wmods.wppenhacer.xposed.features.others.MinorFixes
 import com.wmods.wppenhacer.xposed.features.privacy.AntiWa
 import com.wmods.wppenhacer.xposed.features.privacy.CallPrivacy
-import com.wmods.wppenhacer.xposed.features.privacy.CustomPrivacy
 import com.wmods.wppenhacer.xposed.features.privacy.DndMode
 import com.wmods.wppenhacer.xposed.features.privacy.FreezeLastSeen
 import com.wmods.wppenhacer.xposed.features.privacy.HideChat

@@ -11,6 +11,7 @@ kavaref = "1.1.1"
 dexkit = "2.3.0"
 libxposed = "102.0.0"
 flatbuffers = "25.2.10"
+roomRuntime = "2.6.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -34,6 +35,8 @@ kavaref-core = { module = "com.highcapable.kavaref:kavaref-core", version.ref = 
 kavaref-extension = { module = "com.highcapable.kavaref:kavaref-extension", version.ref = "kavaref" }
 dexkit = { module = "org.luckypray:dexkit", version.ref = "dexkit" }
 flatbuffers = { module = "com.google.flatbuffers:flatbuffers-java", version.ref = "flatbuffers" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
 libxposed-api = { module = "io.github.libxposed:api", version.ref = "libxposed" }
 xposed-api = { group = "de.robv.android.xposed", name = "api", version = "82" }
 
