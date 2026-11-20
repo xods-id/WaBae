@@ -1,0 +1,200 @@
+package com.wmods.wppenhacer.xposed.core.components
+
+import com.highcapable.kavaref.KavaRef.Companion.resolve
+import com.highcapable.yukihookapi.extension.kavaref.hookAll
+import com.highcapable.yukihookapi.hook.param.PackageParam
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
+import com.wmods.wppenhacer.xposed.utils.YukiLog
+import org.luckypray.dexkit.query.enums.StringMatchType
+import java.io.InputStream
+import java.lang.reflect.Field
+import java.lang.reflect.Method
+
+class WaContactWpp(instance: Any?) {
+
+    val mInstance: Any
+
+    init {
+        if (instance == null) {
+            throw RuntimeException("instance cannot be null")
+        }
+        if (!TYPE.isInstance(instance)) {
+            throw RuntimeException("object is not a WaContactWpp")
+        }
+        this.mInstance = instance
+    }
+
+    companion object {
+
+
+        lateinit var TYPE: Class<*>
+
+        // Fields
+        private var fieldContactData: Field? = null
+        private var fieldUserJid: Field? = null
+        private var fieldGetWaName: Field? = null
+        private var fieldNumber: Field? = null
+        private var fieldDataGetDisplayName: Field? = null
+
+        // Methods
+        private var getWaContactMethod: Method? = null
+        private var getProfilePhoto: Method? = null
+
+        // Instances
+        private var mInstanceGetWaContact: Any? = null
+        private var mInstanceGetProfilePhoto: Any? = null
+
+        @JvmStatic
+        fun initialize(packageParam: PackageParam, classLoader: ClassLoader) {
+            packageParam.apply {
+                try {
+                    TYPE = Unobfuscator.loadWaContactClass(classLoader)
+                    val convertLidToJid = Unobfuscator.loadConvertLidToJid(classLoader)
+                    val classPhoneUserJid = convertLidToJid.returnType
+                    val classJid = Unobfuscator.findFirstClassUsingName(
+                        classLoader,
+                        StringMatchType.EndsWith,
+                        "jid.Jid"
+                    )
+
+                    val phoneUserJid = ReflectionUtils.getFieldByExtendType(TYPE, classPhoneUserJid)
+                    if (phoneUserJid == null) {
+                        val contactDataClass = Unobfuscator.loadWaContactDataClass(classLoader)
+                        fieldContactData = ReflectionUtils.getFieldByType(TYPE, contactDataClass)
+                        fieldUserJid =
+                            ReflectionUtils.getFieldByExtendType(contactDataClass, classJid)
+                    } else {
+                        fieldUserJid = ReflectionUtils.getFieldByExtendType(TYPE, classJid)
+                    }
+
+                    fieldDataGetDisplayName =
+                        Unobfuscator.loadWaContactDataDisplayNameMethod(classLoader)
+                    fieldGetWaName = Unobfuscator.loadWaContactGetWaNameField(classLoader)
+
+                    getWaContactMethod = Unobfuscator.loadGetWaContactMethod(classLoader)
+                    getWaContactMethod?.let { method ->
+                        method.declaringClass.resolve().constructor { }.hookAll {
+                            after {
+                                mInstanceGetWaContact = instance
+                            }
+                        }
+                    }
+
+                    getProfilePhoto = Unobfuscator.loadGetProfilePhotoMethod(classLoader)
+                    getProfilePhoto?.let { method ->
+                        method.declaringClass.resolve().constructor { }.hookAll {
+                            after {
+                                mInstanceGetProfilePhoto = instance
+                            }
+                        }
+                    }
+
+                    fieldNumber = Unobfuscator.loadWaContactNumberField(classLoader)
+
+
+                } catch (e: Exception) {
+                    YukiLog.log(e)
+                }
+            }
+        }
+
+        @JvmStatic
+        fun getWaContactFromJid(userJid: FMessageWpp.UserJid): WaContactWpp? {
+            return try {
+                val instance = mInstanceGetWaContact
+                val method = getWaContactMethod
+                if (instance != null && method != null) {
+                    var jid = userJid.userJid
+                    if (!method.parameterTypes[0].isInstance(jid)) {
+                        jid = FMessageWpp.UserJid.forceConverter(jid).userJid
+                    }
+                    val result = method.invoke(instance, jid)
+                    result?.let { WaContactWpp(it) }
+                } else null
+            } catch (e: Exception) {
+                YukiLog.log(e)
+                null
+            }
+        }
+    }
+
+    fun getObject(): Any = mInstance
+
+    val userJid: FMessageWpp.UserJid by lazy {
+        try {
+            val userJidObj = fieldUserJid?.get(waContactData)
+            userJidObj?.let { FMessageWpp.UserJid(it) } ?: FMessageWpp.UserJid()
+        } catch (e: Exception) {
+            YukiLog.log(e)
+            FMessageWpp.UserJid()
+        }
+    }
+
+    val displayName: String?
+        get() {
+            return try {
+                fieldDataGetDisplayName?.get(waContactData) as? String
+            } catch (e: Exception) {
+                YukiLog.log(e)
+                null
+            }
+        }
+
+    val waName: String?
+        get() {
+            return try {
+                if (fieldContactData?.type?.isAssignableFrom(
+                        fieldGetWaName?.declaringClass ?: Any::class.java
+                    ) == true
+                ) {
+                    waContactData?.let { fieldGetWaName?.get(it) } as? String
+                } else {
+                    fieldGetWaName?.get(mInstance) as? String
+                }
+            } catch (e: Exception) {
+                YukiLog.log(e)
+                null
+            }
+        }
+
+    val waContactData: Any? by lazy {
+        try {
+            fieldContactData?.get(mInstance)
+        } catch (e: Exception) {
+            YukiLog.log(e)
+            null
+        }
+    }
+
+    fun getProfilePhoto(fullImage: Boolean): InputStream? {
+        return try {
+            val instance = mInstanceGetProfilePhoto
+            val method = getProfilePhoto
+            val target = mInstance
+            if (instance != null && method != null && target != null) {
+                val args = method.parameterTypes.map { type ->
+                    when {
+                        type == Boolean::class.javaPrimitiveType -> fullImage
+                        type.isAssignableFrom(target.javaClass) -> target
+                        else -> null
+                    }
+                }.toTypedArray()
+                method.invoke(instance, *args) as? InputStream
+            } else null
+        } catch (e: Exception) {
+            YukiLog.log(e)
+            null
+        }
+    }
+
+    fun isSavedContact(): Boolean {
+        return try {
+            fieldNumber?.get(mInstance) != null
+        } catch (e: Exception) {
+            YukiLog.log(e)
+            false
+        }
+    }
+
+}

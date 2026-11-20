@@ -7,6 +7,10 @@ lifecycle = "2.8.7"
 activityCompose = "1.9.3"
 composeBom = "2024.11.00"
 yukihook = "1.5.0"
+kavaref = "1.1.1"
+dexkit = "2.3.0"
+libxposed = "102.0.0"
+flatbuffers = "25.2.10"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -24,6 +28,13 @@ yukihook-bom = { module = "com.highcapable.yukihookapi:yukihook-bom", version.re
 yukihook-core = { module = "com.highcapable.yukihookapi:yukihook-core", version.ref = "yukihook" }
 yukihook-compiler = { module = "com.highcapable.yukihookapi:yukihook-compiler", version.ref = "yukihook" }
 yukihook-runtime-xposed82 = { module = "com.highcapable.yukihookapi:yukihook-runtime-xposed82", version.ref = "yukihook" }
+yukihook-runtime-libxposed = { module = "com.highcapable.yukihookapi:yukihook-runtime-libxposed", version.ref = "yukihook" }
+yukihook-extension-kavaref = { module = "com.highcapable.yukihookapi:yukihook-extension-kavaref", version.ref = "yukihook" }
+kavaref-core = { module = "com.highcapable.kavaref:kavaref-core", version.ref = "kavaref" }
+kavaref-extension = { module = "com.highcapable.kavaref:kavaref-extension", version.ref = "kavaref" }
+dexkit = { module = "org.luckypray:dexkit", version.ref = "dexkit" }
+flatbuffers = { module = "com.google.flatbuffers:flatbuffers-java", version.ref = "flatbuffers" }
+libxposed-api = { module = "io.github.libxposed:api", version.ref = "libxposed" }
 xposed-api = { group = "de.robv.android.xposed", name = "api", version = "82" }
 
 [plugins]

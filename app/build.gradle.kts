@@ -56,7 +56,14 @@ dependencies {
 
     implementation(platform(libs.yukihook.bom))
     implementation(libs.yukihook.core)
+    implementation(libs.yukihook.runtime.libxposed)
     implementation(libs.yukihook.runtime.xposed82)
-    ksp(libs.yukihook.compiler)
+    implementation(libs.yukihook.extension.kavaref)
+    implementation(libs.kavaref.core)
+    implementation(libs.kavaref.extension)
+    implementation(libs.dexkit)
+    implementation(libs.flatbuffers)
+    compileOnly(libs.libxposed.api)
     compileOnly(libs.xposed.api)
+    ksp(libs.yukihook.compiler)
 }

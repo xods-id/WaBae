@@ -1,13 +1,10 @@
 package id.xods.wabae.data
 
 import android.content.Context
-import android.os.Bundle
-import id.xods.wabae.data.PrefsProvider.Companion.CONTENT_URI
-import id.xods.wabae.data.PrefsProvider.Companion.KEY_VALUES
-import id.xods.wabae.data.PrefsProvider.Companion.METHOD_GET_ALL
-import id.xods.wabae.data.PrefsProvider.Companion.PREFS_NAME
 
 object PrefsManager {
+
+    const val PREFS_NAME = "wabae_preferences"
 
     // Keys - Privacy
     const val KEY_GHOST_MODE = "ghost_mode"
@@ -33,17 +30,41 @@ object PrefsManager {
     const val KEY_DISABLE_PROXIMITY = "disable_proximity"
     const val KEY_MEDIA_PREVIEW = "media_preview"
 
-    // UI Helper (Local app process)
+    // Key mapping for hook engine compatibility
+    private val keyMapping = mapOf(
+        KEY_ANTI_VIEW_ONCE to listOf("viewonce"),
+        KEY_ANTI_DELETE to listOf("antirevoke", "antirevokestatus"),
+        KEY_HIDE_TYPING to listOf("ghostmode_t"),
+        KEY_HIDE_RECORDING to listOf("ghostmode_r"),
+        KEY_GHOST_MODE to listOf("ghostmode"),
+        KEY_HIDE_READ to listOf("hideread"),
+        KEY_GHOST_STATUS_VIEW to listOf("hidestatusview"),
+        KEY_FREEZE_LAST_SEEN to listOf("freezelastseen"),
+        KEY_BLOCK_UNKNOWN_CALLS to listOf("call_privacy"),
+        KEY_DOWNLOAD_STATUS to listOf("downloadstatus"),
+        KEY_DOWNLOAD_VIEW_ONCE to listOf("downloadviewonce"),
+        KEY_IMAGE_QUALITY to listOf("imagequality"),
+        KEY_VIDEO_QUALITY to listOf("videoquality"),
+        KEY_MEDIA_PREVIEW to listOf("enable_media_preview")
+    )
+
     fun getLocalBoolean(context: Context, key: String, defValue: Boolean = false): Boolean {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .getBoolean(key, defValue)
     }
 
     fun setLocalBoolean(context: Context, key: String, value: Boolean) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .putBoolean(key, value)
-            .apply()
+        val editor = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+        editor.putBoolean(key, value)
+
+        // Sync with mapped hook keys
+        keyMapping[key]?.forEach { aliasKey ->
+            editor.putBoolean(aliasKey, value)
+            if (aliasKey == "antirevoke" || aliasKey == "antirevokestatus" || aliasKey == "call_privacy") {
+                editor.putString(aliasKey, if (value) "1" else "0")
+            }
+        }
+        editor.apply()
     }
 
     fun getLocalString(context: Context, key: String, defValue: String = ""): String {
@@ -52,36 +73,11 @@ object PrefsManager {
     }
 
     fun setLocalString(context: Context, key: String, value: String) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .putString(key, value)
-            .apply()
-    }
-
-    // Hook Helper (WhatsApp process - calls ContentProvider)
-    private var cachedRemotePrefs: Bundle? = null
-    private var lastFetchTime = 0L
-
-    fun getRemoteBoolean(context: Context, key: String, defValue: Boolean = false): Boolean {
-        fetchRemotePrefs(context)
-        return cachedRemotePrefs?.getBoolean(key, defValue) ?: defValue
-    }
-
-    fun getRemoteString(context: Context, key: String, defValue: String = ""): String {
-        fetchRemotePrefs(context)
-        return cachedRemotePrefs?.getString(key, defValue) ?: defValue
-    }
-
-    private fun fetchRemotePrefs(context: Context) {
-        val now = System.currentTimeMillis()
-        if (cachedRemotePrefs == null || now - lastFetchTime > 3000) {
-            try {
-                val bundle = context.contentResolver.call(CONTENT_URI, METHOD_GET_ALL, null, null)
-                cachedRemotePrefs = bundle?.getBundle(KEY_VALUES)
-                lastFetchTime = now
-            } catch (e: Exception) {
-                // fallback
-            }
+        val editor = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+        editor.putString(key, value)
+        if (key == KEY_CALL_REJECT_TYPE) {
+            editor.putString("call_type", value)
         }
+        editor.apply()
     }
 }
