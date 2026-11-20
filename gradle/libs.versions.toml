@@ -23,6 +23,7 @@ androidx-compose-material-icons = { group = "androidx.compose.material", name = 
 yukihook-bom = { module = "com.highcapable.yukihookapi:yukihook-bom", version.ref = "yukihook" }
 yukihook-core = { module = "com.highcapable.yukihookapi:yukihook-core", version.ref = "yukihook" }
 yukihook-compiler = { module = "com.highcapable.yukihookapi:yukihook-compiler", version.ref = "yukihook" }
+yukihook-runtime-libxposed = { module = "com.highcapable.yukihookapi:yukihook-runtime-libxposed", version.ref = "yukihook" }
 xposed-api = { group = "de.robv.android.xposed", name = "api", version = "82" }
 
 [plugins]

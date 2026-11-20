@@ -56,6 +56,7 @@ dependencies {
 
     implementation(platform(libs.yukihook.bom))
     implementation(libs.yukihook.core)
+    implementation(libs.yukihook.runtime.libxposed)
     ksp(libs.yukihook.compiler)
     compileOnly(libs.xposed.api)
 }
