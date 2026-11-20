@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "id.xods.wabae"
-    compileSdk = 35
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "id.xods.wabae"
@@ -34,12 +34,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = "21"
     }
 
     buildFeatures {
