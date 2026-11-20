@@ -171,8 +171,9 @@ object StatusMediaDownloader {
         transfer.throwIfCancelled()
         call.execute().use { response ->
             if (!response.isSuccessful) return false
-            val total = response.body.contentLength()
-            response.body.byteStream().use { input ->
+            val body = response.body ?: return false
+            val total = body.contentLength()
+            body.byteStream().use { input ->
                 target.outputStream().use { output ->
                     val buffer = ByteArray(BUFFER_SIZE)
                     var read = 0L

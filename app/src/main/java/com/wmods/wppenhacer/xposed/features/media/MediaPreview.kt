@@ -518,10 +518,11 @@ class MediaPreview(
                     throw Exception("Failed to download media")
                 }
 
-                var contentLength = response.body.contentLength()
+                val body = response.body ?: throw Exception("Response body is null")
+                var contentLength = body.contentLength()
                 if (contentLength <= 0) contentLength = expectedSize
 
-                val inputStream = response.body.byteStream()
+                val inputStream = body.byteStream()
 
                 if (isNewsletter || mediaKey.isNullOrEmpty()) {
                     downloadWithProgress(inputStream, contentLength, progressBar, progressText)

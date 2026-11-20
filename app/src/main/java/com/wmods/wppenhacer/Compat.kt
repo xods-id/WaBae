@@ -11,11 +11,17 @@ object R {
 
 object BuildConfig {
     const val APPLICATION_ID = "id.xods.wabae"
+    const val VERSION_NAME = "1.0.0"
     const val RESET_ON_INSTALL = false
 }
 
 object App {
     const val isOriginalPackage = true
+}
+
+object Tasker {
+    @JvmStatic
+    fun sendTaskerEvent(vararg args: Any?) {}
 }
 
 class UpdateChecker(private val mActivity: Activity) : Runnable {

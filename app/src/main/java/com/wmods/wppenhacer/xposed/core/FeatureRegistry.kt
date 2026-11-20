@@ -17,11 +17,9 @@ import com.wmods.wppenhacer.xposed.features.privacy.DndMode
 import com.wmods.wppenhacer.xposed.features.privacy.FreezeLastSeen
 import com.wmods.wppenhacer.xposed.features.privacy.HideChat
 import com.wmods.wppenhacer.xposed.features.privacy.HideSeen
-import com.wmods.wppenhacer.xposed.features.privacy.LockedChatsEnhancer
 import com.wmods.wppenhacer.xposed.features.privacy.TagMessage
 import com.wmods.wppenhacer.xposed.features.privacy.TypingPrivacy
 import com.wmods.wppenhacer.xposed.features.privacy.ViewOnce
-import com.wmods.wppenhacer.xposed.features.providers.ContextMenuActionProvider
 import com.wmods.wppenhacer.xposed.features.providers.MenuStatusProvider
 
 /** Privacy & Media features installed by [FeatureLoader], in load order. */
@@ -31,7 +29,6 @@ internal object FeatureRegistry {
         DebugFeature::class.java,
         MinorFixes::class.java,
         MenuStatusProvider::class.java,
-        ContextMenuActionProvider::class.java,
 
         // Privacy
         AntiRevoke::class.java,
@@ -44,7 +41,6 @@ internal object FeatureRegistry {
         HideSeen::class.java,
         TagMessage::class.java,
         AntiWa::class.java,
-        LockedChatsEnhancer::class.java,
         ViewOnce::class.java,
 
         // Media
