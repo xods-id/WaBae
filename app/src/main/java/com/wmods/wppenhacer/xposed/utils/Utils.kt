@@ -60,7 +60,7 @@ object Utils {
 
     @JvmStatic
     val application: Application
-        get() = FeatureLoader.mApp ?: App.instance!!
+        get() = FeatureLoader.mApp!!
 
     fun getString(id: Int): String {
         return application.getString(id)
