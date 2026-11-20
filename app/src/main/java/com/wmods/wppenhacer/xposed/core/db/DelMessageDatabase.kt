@@ -195,7 +195,7 @@ abstract class DelMessageDatabase : RoomDatabase() {
                 )
                 .setQueryExecutor(Utils.databaseExecutor)
                 .setTransactionExecutor(Utils.databaseExecutor)
-                .fallbackToDestructiveMigration(true)
+                .fallbackToDestructiveMigration()
         }
     }
 }

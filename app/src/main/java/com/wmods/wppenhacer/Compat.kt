@@ -9,7 +9,10 @@ object R {
     typealias drawable = id.xods.wabae.R.drawable
 }
 
-typealias BuildConfig = id.xods.wabae.BuildConfig
+object BuildConfig {
+    const val APPLICATION_ID = "id.xods.wabae"
+    const val RESET_ON_INSTALL = false
+}
 
 object App {
     const val isOriginalPackage = true

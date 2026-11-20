@@ -75,7 +75,7 @@ class MessageHistoryStore private constructor(context: Context) {
         .setQueryExecutor(Utils.databaseExecutor)
         .setTransactionExecutor(Utils.databaseExecutor)
         .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
-        .fallbackToDestructiveMigration(true)
+        .fallbackToDestructiveMigration()
         .build()
 
     private val messageDao = db.messageDao()

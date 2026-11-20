@@ -473,6 +473,7 @@ class AntiRevoke(loader: ClassLoader, preferences: SharedPreferences) :
         val isRevokeActive = runCatching { xprefs.getBoolean(revokeKey, false) }.getOrDefault(false) ||
                 runCatching { (xprefs.getString(revokeKey, "0")?.toIntOrNull() ?: 0) != 0 }.getOrDefault(false) ||
                 runCatching { xprefs.getBoolean("anti_delete", false) }.getOrDefault(false)
+        val revokeBoolean = if (isRevokeActive) 1 else 0
 
         if (!isRevokeActive) return 0
 
@@ -554,7 +555,7 @@ class AntiRevoke(loader: ClassLoader, preferences: SharedPreferences) :
             Utils.showToast(message, Toast.LENGTH_LONG)
         }
 
-        Tasker.sendTaskerEvent(name, jidAuthor.phoneNumber, taskerAction)
+        // Tasker.sendTaskerEvent(name, jidAuthor.phoneNumber, taskerAction)
     }
 
     override fun getPluginName(): String = "Anti Revoke"
