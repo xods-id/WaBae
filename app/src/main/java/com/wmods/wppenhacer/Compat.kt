@@ -2,7 +2,13 @@ package com.wmods.wppenhacer
 
 import android.app.Activity
 
-typealias R = id.xods.wabae.R
+object R {
+    typealias string = id.xods.wabae.R.string
+    typealias array = id.xods.wabae.R.array
+    typealias style = id.xods.wabae.R.style
+    typealias drawable = id.xods.wabae.R.drawable
+}
+
 typealias BuildConfig = id.xods.wabae.BuildConfig
 
 object App {

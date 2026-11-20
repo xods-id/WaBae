@@ -37,6 +37,24 @@
             android:exported="true"
             tools:ignore="ExportedContentProvider" />
 
+        <service
+            android:name="com.wmods.wppenhacer.xposed.bridge.service.BridgeService"
+            android:exported="true"
+            tools:ignore="ExportedService" />
+
+        <provider
+            android:name="com.wmods.wppenhacer.xposed.bridge.providers.HookProvider"
+            android:authorities="${applicationId}.hookprovider"
+            android:enabled="true"
+            android:exported="true"
+            tools:ignore="ExportedContentProvider" />
+
+        <activity
+            android:name="com.wmods.wppenhacer.activities.ForceStartActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:theme="@android:style/Theme.NoDisplay" />
+
         <activity
             android:name="id.xods.wabae.ui.MainActivity"
             android:exported="true"
