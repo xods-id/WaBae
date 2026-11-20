@@ -2,7 +2,14 @@ package id.xods.wabae.ui.screens
 
 import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,14 +31,21 @@ import androidx.compose.material.icons.rounded.DoneAll
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Mic
+import androidx.compose.material.icons.rounded.PhoneDisabled
+import androidx.compose.material.icons.rounded.PhoneLocked
 import androidx.compose.material.icons.rounded.RemoveRedEye
 import androidx.compose.material.icons.rounded.Security
+import androidx.compose.material.icons.rounded.SignalCellularConnectedNoInternet4Bar
+import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.VisibilityOff
+import androidx.compose.material.icons.rounded.WifiOff
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -43,10 +57,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import id.xods.wabae.data.PrefsManager
@@ -57,19 +71,46 @@ fun PrivacyScreen(
 ) {
     val context = LocalContext.current
 
-    // States
-    var ghostMode by remember { mutableStateOf(PrefsManager.getLocalBoolean(context, PrefsManager.KEY_GHOST_MODE)) }
-    var freezeLastSeen by remember { mutableStateOf(PrefsManager.getLocalBoolean(context, PrefsManager.KEY_FREEZE_LAST_SEEN)) }
-    var hideOnline by remember { mutableStateOf(PrefsManager.getLocalBoolean(context, PrefsManager.KEY_HIDE_ONLINE)) }
-    var hideRead by remember { mutableStateOf(PrefsManager.getLocalBoolean(context, PrefsManager.KEY_HIDE_READ)) }
-    var blueOnReply by remember { mutableStateOf(PrefsManager.getLocalBoolean(context, PrefsManager.KEY_BLUE_ON_REPLY)) }
-    var hideDelivered by remember { mutableStateOf(PrefsManager.getLocalBoolean(context, PrefsManager.KEY_HIDE_DELIVERED)) }
-    var hideTyping by remember { mutableStateOf(PrefsManager.getLocalBoolean(context, PrefsManager.KEY_HIDE_TYPING)) }
-    var hideRecording by remember { mutableStateOf(PrefsManager.getLocalBoolean(context, PrefsManager.KEY_HIDE_RECORDING)) }
-    var ghostStatusView by remember { mutableStateOf(PrefsManager.getLocalBoolean(context, PrefsManager.KEY_GHOST_STATUS_VIEW)) }
-    var antiViewOnce by remember { mutableStateOf(PrefsManager.getLocalBoolean(context, PrefsManager.KEY_ANTI_VIEW_ONCE)) }
-    var antiDelete by remember { mutableStateOf(PrefsManager.getLocalBoolean(context, PrefsManager.KEY_ANTI_DELETE, true)) }
-    var blockUnknownCalls by remember { mutableStateOf(PrefsManager.getLocalBoolean(context, PrefsManager.KEY_BLOCK_UNKNOWN_CALLS)) }
+    // State Variables
+    var ghostMode by remember {
+        mutableStateOf(PrefsManager.getLocalBoolean(context, PrefsManager.KEY_GHOST_MODE, false))
+    }
+    var freezeLastSeen by remember {
+        mutableStateOf(PrefsManager.getLocalBoolean(context, PrefsManager.KEY_FREEZE_LAST_SEEN, false))
+    }
+    var hideOnline by remember {
+        mutableStateOf(PrefsManager.getLocalBoolean(context, PrefsManager.KEY_HIDE_ONLINE, false))
+    }
+    var hideRead by remember {
+        mutableStateOf(PrefsManager.getLocalBoolean(context, PrefsManager.KEY_HIDE_READ, false))
+    }
+    var blueOnReply by remember {
+        mutableStateOf(PrefsManager.getLocalBoolean(context, PrefsManager.KEY_BLUE_ON_REPLY, false))
+    }
+    var hideDelivered by remember {
+        mutableStateOf(PrefsManager.getLocalBoolean(context, PrefsManager.KEY_HIDE_DELIVERED, false))
+    }
+    var hideTyping by remember {
+        mutableStateOf(PrefsManager.getLocalBoolean(context, PrefsManager.KEY_HIDE_TYPING, false))
+    }
+    var hideRecording by remember {
+        mutableStateOf(PrefsManager.getLocalBoolean(context, PrefsManager.KEY_HIDE_RECORDING, false))
+    }
+    var ghostStatusView by remember {
+        mutableStateOf(PrefsManager.getLocalBoolean(context, PrefsManager.KEY_GHOST_STATUS_VIEW, false))
+    }
+    var antiViewOnce by remember {
+        mutableStateOf(PrefsManager.getLocalBoolean(context, PrefsManager.KEY_ANTI_VIEW_ONCE, true))
+    }
+    var antiDelete by remember {
+        mutableStateOf(PrefsManager.getLocalBoolean(context, PrefsManager.KEY_ANTI_DELETE, false))
+    }
+    var blockCalls by remember {
+        mutableStateOf(PrefsManager.getLocalBoolean(context, PrefsManager.KEY_BLOCK_UNKNOWN_CALLS, false))
+    }
+    var callRejectType by remember {
+        mutableStateOf(PrefsManager.getLocalString(context, PrefsManager.KEY_CALL_REJECT_TYPE, "no_internet"))
+    }
 
     LazyColumn(
         modifier = modifier
@@ -78,24 +119,24 @@ fun PrivacyScreen(
         contentPadding = PaddingValues(vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Hero Card: Ghost Mode (Mode Siluman)
+        // Hero Card: Mode Hantu (Ghost Mode)
         item {
             GhostModeHeroCard(
                 enabled = ghostMode,
-                onCheckedChange = { isChecked ->
-                    ghostMode = isChecked
-                    PrefsManager.setLocalBoolean(context, PrefsManager.KEY_GHOST_MODE, isChecked)
+                onCheckedChange = {
+                    ghostMode = it
+                    PrefsManager.setLocalBoolean(context, PrefsManager.KEY_GHOST_MODE, it)
                 }
             )
         }
 
-        // Section: Kehadiran & Status
+        // Section: Privasi Online & Kehadiran
         item {
-            BentoSectionCard(title = "Kehadiran & Status") {
+            BentoSectionCard(title = "Kehadiran & Status Online") {
                 PrivacyToggleItem(
                     title = "Bekukan Terakhir Dilihat",
-                    subtitle = "Waktu terakhir online terkunci di jam terakhir kamu buka WA",
-                    icon = Icons.Rounded.Lock,
+                    subtitle = "Waktu terakhir dilihat terkunci permanen di masa lalu",
+                    icon = Icons.Rounded.VisibilityOff,
                     checked = freezeLastSeen,
                     onCheckedChange = {
                         freezeLastSeen = it
@@ -105,8 +146,8 @@ fun PrivacyScreen(
                 HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                 PrivacyToggleItem(
                     title = "Sembunyikan Status Online",
-                    subtitle = "Orang lain tidak akan melihat tulisan online saat kamu buka WA",
-                    icon = Icons.Rounded.VisibilityOff,
+                    subtitle = "Kamu tidak akan terlihat online meskipun sedang aktif",
+                    icon = Icons.Rounded.Visibility,
                     checked = hideOnline,
                     onCheckedChange = {
                         hideOnline = it
@@ -164,8 +205,8 @@ fun PrivacyScreen(
                 )
                 HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                 PrivacyToggleItem(
-                    title = "Sembunyikan Merekam Suara",
-                    subtitle = "Hilangkan indikator 'merekam audio...' saat kamu rekam VN",
+                    title = "Sembunyikan Merekam Audio",
+                    subtitle = "Hilangkan tulisan 'merekam audio...' saat merekam vn",
                     icon = Icons.Rounded.Mic,
                     checked = hideRecording,
                     onCheckedChange = {
@@ -176,12 +217,12 @@ fun PrivacyScreen(
             }
         }
 
-        // Section: Cerita & Media
+        // Section: Story & Media Proteksi
         item {
-            BentoSectionCard(title = "Cerita & Media") {
+            BentoSectionCard(title = "Story & Proteksi Media") {
                 PrivacyToggleItem(
-                    title = "Liat Status Tanpa Ketahuan",
-                    subtitle = "Nama kamu tidak akan muncul di daftar orang yang melihat cerita",
+                    title = "Lihat Status Tanpa Ketahuan",
+                    subtitle = "Nama kamu tidak akan muncul di daftar penonton status",
                     icon = Icons.Rounded.RemoveRedEye,
                     checked = ghostStatusView,
                     onCheckedChange = {
@@ -214,24 +255,143 @@ fun PrivacyScreen(
             }
         }
 
-        // Section: Panggilan
+        // Section: Keamanan Panggilan (Desain Bento Baru Khas WaBae)
         item {
-            BentoSectionCard(title = "Keamanan Panggilan") {
+            BentoSectionCard(title = "Filter & Penolakan Panggilan") {
                 PrivacyToggleItem(
-                    title = "Blokir Panggilan Tak Dikenal",
-                    subtitle = "Tolak otomatis panggilan dari nomor yang belum tersimpan di kontak",
+                    title = "Blokir Panggilan Masuk",
+                    subtitle = "Otomatis tolak panggilan WhatsApp sesuai skenario yang kamu pilih",
                     icon = Icons.Rounded.Call,
-                    checked = blockUnknownCalls,
+                    checked = blockCalls,
                     onCheckedChange = {
-                        blockUnknownCalls = it
+                        blockCalls = it
                         PrefsManager.setLocalBoolean(context, PrefsManager.KEY_BLOCK_UNKNOWN_CALLS, it)
                     }
                 )
+
+                AnimatedVisibility(
+                    visible = blockCalls,
+                    enter = expandVertically() + fadeIn(),
+                    exit = shrinkVertically() + fadeOut()
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp, start = 8.dp, end = 8.dp, bottom = 4.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = "Skenario Penolakan Panggilan",
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+
+                        CallScenarioCard(
+                            title = "Tidak Ada Internet (Memanggil...)",
+                            subtitle = "Penelpon melihat status 'Memanggil...' seolah HP kamu mati kuota",
+                            icon = Icons.Rounded.WifiOff,
+                            selected = callRejectType == "no_internet",
+                            onClick = {
+                                callRejectType = "no_internet"
+                                PrefsManager.setLocalString(context, PrefsManager.KEY_CALL_REJECT_TYPE, "no_internet")
+                            }
+                        )
+
+                        CallScenarioCard(
+                            title = "Sedang Sibuk (Panggilan Lain)",
+                            subtitle = "Penelpon menerima nada sibuk seolah kamu lagi telponan",
+                            icon = Icons.Rounded.PhoneLocked,
+                            selected = callRejectType == "busy",
+                            onClick = {
+                                callRejectType = "busy"
+                                PrefsManager.setLocalString(context, PrefsManager.KEY_CALL_REJECT_TYPE, "busy")
+                            }
+                        )
+
+                        CallScenarioCard(
+                            title = "Panggilan Ditolak (Declined)",
+                            subtitle = "Panggilan langsung terputus dengan status ditolak biasa",
+                            icon = Icons.Rounded.PhoneDisabled,
+                            selected = callRejectType == "declined",
+                            onClick = {
+                                callRejectType = "declined"
+                                PrefsManager.setLocalString(context, PrefsManager.KEY_CALL_REJECT_TYPE, "declined")
+                            }
+                        )
+                    }
+                }
             }
         }
 
         item {
             Spacer(modifier = Modifier.height(32.dp))
+        }
+    }
+}
+
+@Composable
+private fun CallScenarioCard(
+    title: String,
+    subtitle: String,
+    icon: ImageVector,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    val borderColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+    val bgColor = if (selected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f) else MaterialTheme.colorScheme.surface
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .clickable { onClick() },
+        shape = RoundedCornerShape(16.dp),
+        color = bgColor,
+        border = BorderStroke(if (selected) 2.dp else 1.dp, borderColor)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Surface(
+                modifier = Modifier.size(38.dp),
+                shape = CircleShape,
+                color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            RadioButton(
+                selected = selected,
+                onClick = onClick,
+                colors = RadioButtonDefaults.colors(
+                    selectedColor = MaterialTheme.colorScheme.primary
+                )
+            )
         }
     }
 }
@@ -249,17 +409,18 @@ private fun GhostModeHeroCard(
             containerColor = if (enabled) {
                 MaterialTheme.colorScheme.primaryContainer
             } else {
-                MaterialTheme.colorScheme.surfaceVariant
+                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
             }
         )
     ) {
         Column(
-            modifier = Modifier.padding(20.dp)
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -267,28 +428,29 @@ private fun GhostModeHeroCard(
                 ) {
                     Surface(
                         shape = CircleShape,
-                        color = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+                        color = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
                         modifier = Modifier.size(44.dp)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
-                                imageVector = Icons.Rounded.Security,
+                                imageVector = if (enabled) Icons.Rounded.Security else Icons.Rounded.VisibilityOff,
                                 contentDescription = null,
-                                tint = if (enabled) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                                tint = if (enabled) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(24.dp)
                             )
                         }
                     }
+
                     Column {
                         Text(
-                            text = "Mode Siluman (Ghost)",
+                            text = "Mode Hantu (Ghost Mode)",
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = if (enabled) "Aktif: Privasi Penuh" else "Nonaktif",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+                            text = if (enabled) "Semua pelacak privasi dinonaktifkan" else "Aktifkan privasi total instan",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -297,20 +459,11 @@ private fun GhostModeHeroCard(
                     checked = enabled,
                     onCheckedChange = onCheckedChange,
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
-                        checkedTrackColor = MaterialTheme.colorScheme.primary
+                        checkedThumbColor = MaterialTheme.colorScheme.primary,
+                        checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
                     )
                 )
             }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = "Aktifkan untuk menjadi tak terlihat: sembunyikan status online, freeze last seen, dan liat status tanpa jejak secara serentak.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                lineHeight = 18.sp
-            )
         }
     }
 }
@@ -321,29 +474,24 @@ private fun BentoSectionCard(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
-    Column(
+    Card(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(start = 4.dp)
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
         )
-
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
-            )
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                content()
-            }
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            content()
         }
     }
 }
@@ -360,58 +508,43 @@ private fun PrivacyToggleItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(
             modifier = Modifier.weight(1f),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(14.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = if (checked) {
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-                } else {
-                    MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
-                },
-                modifier = Modifier.size(38.dp)
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = if (checked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            }
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = if (checked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(24.dp)
+            )
 
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
+            Column(modifier = Modifier.padding(end = 12.dp)) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    lineHeight = 16.sp
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
 
-        Spacer(modifier = Modifier.size(8.dp))
-
         Switch(
             checked = checked,
-            onCheckedChange = onCheckedChange
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = MaterialTheme.colorScheme.primary,
+                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
+            )
         )
     }
 }

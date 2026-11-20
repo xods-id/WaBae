@@ -15,6 +15,7 @@ class PrefsProvider : ContentProvider() {
         val CONTENT_URI: Uri = Uri.parse("content://$AUTHORITY")
         const val METHOD_GET_ALL = "getAll"
         const val METHOD_SET_BOOLEAN = "setBoolean"
+        const val METHOD_SET_STRING = "setString"
         const val KEY_VALUES = "values"
         const val PREFS_NAME = "wabae_preferences"
     }
@@ -49,6 +50,14 @@ class PrefsProvider : ContentProvider() {
                 if (arg != null && extras != null) {
                     val value = extras.getBoolean("value")
                     prefs.edit().putBoolean(arg, value).apply()
+                    result.putBoolean("success", true)
+                    return result
+                }
+            }
+            METHOD_SET_STRING -> {
+                if (arg != null && extras != null) {
+                    val value = extras.getString("value") ?: ""
+                    prefs.edit().putString(arg, value).apply()
                     result.putBoolean("success", true)
                     return result
                 }
